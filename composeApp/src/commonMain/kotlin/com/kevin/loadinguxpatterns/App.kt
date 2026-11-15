@@ -12,7 +12,6 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,12 +21,16 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -48,12 +51,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -133,7 +138,7 @@ private val patterns = listOf(
 
 @Composable
 private fun LoadingGallery() {
-    var selectedIndex by remember { mutableStateOf(0) }
+    var selectedIndex by rememberSaveable { mutableStateOf(0) }
     var isLoading by remember { mutableStateOf(false) }
     var completed by remember { mutableStateOf(false) }
     // Each tap bumps runId; 0 means "no run". Keying the effect on runId (and not on
@@ -217,19 +222,24 @@ private fun PatternPicker(selectedIndex: Int, onSelected: (Int) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .horizontalScroll(rememberScrollState()),
+            .horizontalScroll(rememberScrollState())
+            .selectableGroup(),
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         patterns.forEachIndexed { index, pattern ->
             val selected = selectedIndex == index
             Surface(
-                modifier = Modifier.clickable { onSelected(index) },
+                modifier = Modifier
+                    .heightIn(min = 48.dp)
+                    .selectable(selected = selected, role = Role.Tab, onClick = { onSelected(index) }),
                 shape = RoundedCornerShape(50),
                 color = if (selected) pattern.accent else Color.White,
                 border = BorderStroke(1.dp, if (selected) pattern.accent else Color(0xFFE2DDD4))
             ) {
                 Text(
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+                    modifier = Modifier
+                        .wrapContentHeight()
+                        .padding(horizontal = 16.dp, vertical = 10.dp),
                     text = pattern.title,
                     color = if (selected) Color.White else Color(0xFF303632),
                     fontWeight = FontWeight.SemiBold
