@@ -1,3 +1,5 @@
+> **Ce lab a déménagé.** Il fait maintenant partie de [mobile-ui-labs](https://github.com/YANKAMKEVIN/mobile-ui-labs), qui réunit les 10 labs dans une seule app. Ce dépôt est archivé.
+
 # Loading UX Patterns
 
 Mini-projet Android/KMP pour explorer les patterns de loading dans une UI Compose.
