@@ -136,17 +136,21 @@ private fun LoadingGallery() {
     var selectedIndex by remember { mutableStateOf(0) }
     var isLoading by remember { mutableStateOf(false) }
     var completed by remember { mutableStateOf(false) }
+    // Each tap bumps runId; 0 means "no run". Keying the effect on runId (and not on
+    // isLoading) keeps the effect from cancelling itself when it flips isLoading to false,
+    // which used to leave the button stuck on "Done".
+    var runId by remember { mutableStateOf(0) }
     val selected = patterns[selectedIndex]
 
-    LaunchedEffect(isLoading, selectedIndex) {
-        if (isLoading) {
-            completed = false
-            delay(1800)
-            isLoading = false
-            completed = true
-            delay(1400)
-            completed = false
-        }
+    LaunchedEffect(runId) {
+        if (runId == 0) return@LaunchedEffect
+        isLoading = true
+        completed = false
+        delay(1800)
+        isLoading = false
+        completed = true
+        delay(1400)
+        completed = false
     }
 
     LazyColumn(
@@ -164,6 +168,7 @@ private fun LoadingGallery() {
                 selectedIndex = selectedIndex,
                 onSelected = {
                     selectedIndex = it
+                    runId = 0
                     isLoading = false
                     completed = false
                 }
@@ -180,7 +185,7 @@ private fun LoadingGallery() {
                     isLoading = isLoading,
                     completed = completed,
                     onRun = {
-                        if (!isLoading) isLoading = true
+                        if (!isLoading) runId++
                     }
                 )
             }
